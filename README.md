@@ -1,4 +1,4 @@
-Start
+This is a chip8 compiler. See octo, chip8 and octojam.
 
 `compile.py` compiles the file `code` into CHIP8, which then gets injected into
 `template.html`, which contains a CHIP8 VM. The result is written to
@@ -30,6 +30,7 @@ remembers the current code location and the name can then be used by the
 set and jump macros by writing `@LABEL` instead of a memory address.
 Example:
 
+```
 set @sprite
 label mainloop
 sprite v1 v2 8
@@ -37,6 +38,7 @@ add 1 v1
 jump @mainloop
 label sprite
 [sprite here]
+```
 
 This first sets register i to the sprite stored after label `sprite`,
 then draws it to the screen with the coordinates v1 and v2 (sprite has

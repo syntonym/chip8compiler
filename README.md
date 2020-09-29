@@ -11,16 +11,16 @@ stores the number `00` into register `3` (for reference see http://mattmik.com/f
 Additionally `compile.py` has some inbuild commands or mmemotics.
 Currently supported:
 
-| code | meaning | CHIP8 code |
-| --- | --- | --- |
-| set XXX | set register i to number XXX | AXXX|
-| jump XXX | jump to code XXX | 1XXX |
-| label WORD | remember this location as WORD, see labeling below | no opcode |    
-| vY XX  | set register Y to XX | 6YXX |
-| sprite vX vY Z | draw sprite (memory location i) at screen location register X register Y with height Z | FXYZ |
-| inc XX | this has a bug, don't use it. I have no clue what it does. | ?? |
-| key Y | wait for key press and write to register Y | FY0A |
-| add Y XX | add value XX to register Y | 7YXX|
+| code           | meaning                                                                                | CHIP8 code |
+| ---            | ---                                                                                    | ---        |
+| set XXX        | set register i to number XXX                                                           | AXXX       |
+| jump XXX       | jump to code XXX                                                                       | 1XXX       |
+| label WORD     | remember this location as WORD, see labeling below                                     | no opcode  |
+| vY XX          | set register Y to XX                                                                   | 6YXX       |
+| sprite vX vY Z | draw sprite (memory location i) at screen location register X register Y with height Z | FXYZ       |
+| inc XX         | this has a bug, don't use it. I have no clue what it does.                             | ??         |
+| key Y          | wait for key press and write to register Y                                             | FY0A       |
+| add Y XX       | add value XX to register Y                                                             | 7YXX       |
 
 labeling
 

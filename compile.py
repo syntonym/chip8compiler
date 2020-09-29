@@ -2,10 +2,17 @@ from jinja2 import Template
 from typing import Dict
 import re
 
+def hexa(i):
+    h = hex(i)
+    if len(h) == 3:
+        return "0" + h[2]
+    else:
+        return h[2:]
+
 MNEMS = [
-("0(...)", lambda x: "Deprecated (Machine Exec)"),
 ("00E0"  , lambda : "Clear"),
 ("00EE"  , lambda : "Return"),
+("0(...)", lambda x: "Deprecated (Machine Exec)"),
 ("1(...)"  , lambda x: f"Jump {x}"),
 ("2(...)"  , lambda x: f"Exec {x}"),
 ("3(.)(..)"  , lambda x, y: f"Skip v{x}=={y}"),
@@ -65,7 +72,8 @@ def location(s):
         l = labels[s[1:]]
     else:
         l = int(s, 16)
-    return l // 0xff, l % 0xff
+    h = hexa(l)
+    return int(h[::-1][2:4][::-1], 16), int(h[::-1][0:2][::-1], 16)
 
 for line in lines:
     l = line.split(" ")
@@ -74,6 +82,8 @@ for line in lines:
         fake("A" + l[1])
     elif l[0] == "jump":
         fake("1"+ l[1])
+    elif l[0] == "exec":
+        fake("2"+ l[1])
     elif l[0] == "label":
         labels[l[1]] = counter
     elif l[0][0] == "v":
@@ -92,29 +102,39 @@ for line in lines:
     elif l[0] == "add":
         op("7" + l[1][1])
         op(l[2])
+    elif l[0] == "sub":
+        op("8" + l[1][1])
+        op(l[2][1] + "5")
+    elif l[0] == "return":
+        op("00")
+        op("EE")
+    elif l[0] == "skip" and l[1] == "if" and l[3] == "not":
+        op("4" + l[2][1])
+        op(l[4])
     else:
         op(l[0])
 
 codes = []
 
+def baseN(num,b,numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
+    return ((num == 0) and numerals[0]) or (baseN(num // b, b, numerals).lstrip(numerals[0]) + numerals[num % b])
+
 for c in out:
     if type(c) == str:
         l1, l2 = location(c[1:])
+        print(c[1:])
+        print(hexa(l1))
+        print(hexa(l2))
+
         codes.append(int(c[0] + hex(l1)[2:], 16))
         codes.append(l2)
     else:
         codes.append(c)
 
 for label in labels:
-    print(f"{label}: {labels[label]}")
+    print(f"{label}: {baseN(labels[label], 16)}")
 
 
-def hexa(i):
-    h = hex(i)
-    if len(h) == 3:
-        return "0" + h[2]
-    else:
-        return h[2:]
 
 
 def get_mem(code):
@@ -126,9 +146,15 @@ def get_mem(code):
 
 
 for i in range(0, len(codes), 2):
-    h1, h2 = hexa(codes[i]).upper(), hexa(codes[i+1]).upper()
-    mem = get_mem(h1+h2)
-    print(f"{i+512}  {h1} {h2}    {mem}")
+    if i < len(codes)-1:
+        h1, h2 = hexa(codes[i]).upper(), hexa(codes[i+1]).upper()
+        mem = get_mem(h1+h2)
+        print(f"{hexa(i+512)}  {h1} {h2}    {mem}")
+    else:
+        h1, h2  = hexa(codes[i]).upper(), "00"
+        mem = get_mem(h1+h2)
+        print(f"{hexa(i+512)}  {h1} {h2}    {mem}")
+                
 
 
 with open("template.html") as f:
